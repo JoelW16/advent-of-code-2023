@@ -19,6 +19,9 @@ func main() {
 	}
 	task1 := SumPossibleGames(string(content), cubesInBag)
 	fmt.Println(task1)
+
+	task2 := SumMinimumRequiredCubes(string(content))
+	fmt.Println(task2)
 }
 
 func Split(r rune) bool {
@@ -46,6 +49,36 @@ func SumPossibleGames(input string, cubesInBag map[string]int) int {
 	sum := 0
 	for _, game := range games {
 		sum += IsPossibleGame(game, cubesInBag)
+	}
+	return sum
+}
+
+func MinimumRequiredCubes(input string) int {
+	game := strings.Split(input, ":")
+	cubes := strings.FieldsFunc(game[1], Split)
+	minCubes := make(map[string]int)
+
+	for _, cube := range cubes {
+		cubeKV := strings.Fields(cube)
+		cubeValue, _ := strconv.Atoi(cubeKV[0])
+		existingCubeValue, exists := minCubes[cubeKV[1]]
+		if !exists || cubeValue > existingCubeValue {
+			minCubes[cubeKV[1]] = cubeValue
+		}
+	}
+
+	power := 1
+	for _, minCubes := range minCubes {
+		power = power * minCubes
+	}
+	return power
+}
+
+func SumMinimumRequiredCubes(input string) int {
+	games := strings.Split(input, "\n")
+	sum := 0
+	for _, game := range games {
+		sum += MinimumRequiredCubes(game)
 	}
 	return sum
 }
