@@ -15,6 +15,9 @@ func main() {
 	}
 	part1 := FindPartNumbers(string(content))
 	fmt.Println(part1)
+
+	part2 := FindGearRatio(string(content))
+	fmt.Println(part2)
 }
 
 func CreatePartMap(input string) []string {
@@ -93,6 +96,79 @@ func FindPartNumbers(input string) int {
 				num, _ := strconv.Atoi(numbers[i])
 				sum += num
 			}
+		}
+	}
+	return sum
+}
+
+func GetNumbers(partMap []string, startIndex int, endIndex int, row int) []int {
+	symbolRegex := regexp.MustCompile(`[0-9]+`)
+	numberIndex := symbolRegex.FindAllStringIndex(partMap[row], -1)
+	numbers := symbolRegex.FindAllString(partMap[row], -1)
+	result := []int{}
+	for i, index := range numberIndex {
+		if index[len(index)-1] > startIndex && index[0] <= endIndex {
+			num, _ := strconv.Atoi(numbers[i])
+			result = append(result, num)
+		}
+	}
+	return result
+}
+
+func findNumbersAbove(partMap []string, gearIndex []int, row int) []int {
+	if row == 0 {
+		return []int{}
+	}
+	startIndex := GetStartIndex(gearIndex)
+	endIndex := GetEndIndex(gearIndex, partMap, row)
+	return GetNumbers(partMap, startIndex, endIndex, row-1)
+}
+
+func findNumbersBelow(partMap []string, gearIndex []int, row int) []int {
+	if row == len(partMap)-1 {
+		return []int{}
+	}
+	startIndex := GetStartIndex(gearIndex)
+	endIndex := GetEndIndex(gearIndex, partMap, row)
+	return GetNumbers(partMap, startIndex, endIndex, row+1)
+}
+
+func findNumbersLeft(partMap []string, gearIndex []int, row int) []int {
+	if gearIndex[0] == 0 {
+		return []int{}
+	}
+	startIndex := GetStartIndex(gearIndex)
+	return GetNumbers(partMap, startIndex, startIndex, row)
+}
+
+func findNumbersRight(partMap []string, gearIndex []int, row int) []int {
+	if gearIndex[len(gearIndex)-1] == len(partMap[row])-1 {
+		return []int{}
+	}
+	endIndex := GetEndIndex(gearIndex, partMap, row)
+	return GetNumbers(partMap, endIndex, endIndex, row)
+}
+
+func GetGearRatio(partMap []string, gearIndex []int, row int) int {
+	acc := []int{}
+	acc = append(acc, findNumbersAbove(partMap, gearIndex, row)...)
+	acc = append(acc, findNumbersBelow(partMap, gearIndex, row)...)
+	acc = append(acc, findNumbersLeft(partMap, gearIndex, row)...)
+	acc = append(acc, findNumbersRight(partMap, gearIndex, row)...)
+	if len(acc) != 2 {
+		return 0
+	}
+	return acc[0] * acc[1]
+}
+
+func FindGearRatio(input string) int {
+	partMap := CreatePartMap(input)
+	gearRegex := regexp.MustCompile(`\*`)
+	sum := 0
+	for y, row := range partMap {
+		gearIndexes := gearRegex.FindAllStringIndex(row, -1)
+		for _, gearIndex := range gearIndexes {
+			sum += GetGearRatio(partMap, gearIndex, y)
 		}
 	}
 	return sum
