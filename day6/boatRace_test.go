@@ -25,3 +25,14 @@ Distance:  9  40  200`
 		t.Errorf("Expected 288, got %d", result)
 	}
 }
+
+func TestGetTimeRangeCountToBeatRecordFromInputFile(t *testing.T) {
+	input := `Time:      7  15   30
+Distance:  9  40  200`
+
+	result := GetTimeRangeCountToBeatRecordFromInputFile(input)
+
+	if result != 71503 {
+		t.Errorf("Expected 71503, got %d", result)
+	}
+}

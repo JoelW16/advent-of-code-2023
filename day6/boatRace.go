@@ -36,6 +36,16 @@ func GetProductOfTimeCount(input string) int {
 	return product
 }
 
+func GetTimeRangeCountToBeatRecordFromInputFile(input string) int {
+	numberRegex := regexp.MustCompile(`[0-9]+`)
+	inputRows := strings.Split(input, "\n")
+
+	raceTime, _ := strconv.Atoi(strings.Join(numberRegex.FindAllString(inputRows[0], -1), ""))
+	recordDistance, _ := strconv.Atoi(strings.Join(numberRegex.FindAllString(inputRows[1], -1), ""))
+
+	return GetTimeRangeCountToBeatRecord(raceTime, recordDistance)
+}
+
 func main() {
 	content, err := os.ReadFile("input.txt")
 	if err != nil {
@@ -44,4 +54,7 @@ func main() {
 
 	part1 := GetProductOfTimeCount(string(content))
 	fmt.Println("part 1:", part1)
+
+	part2 := GetTimeRangeCountToBeatRecordFromInputFile(string(content))
+	fmt.Println("part 2:", part2)
 }
